@@ -26,7 +26,7 @@ if (!existsSync(configPath)) {
 const config = JSON.parse(readFileSync(configPath, 'utf8'));
 const people = config.people ?? [];
 const rules = config.rules ?? {};
-const baseUrl = config.baseUrl ?? 'https://gribbensetal.github.io/santa/';
+const baseUrl = config.baseUrl ?? 'https://shiteupastickandlickitcomingdown.com/santa/';
 
 // ---------- validation ----------
 
