@@ -128,19 +128,28 @@ const sha256 = async s => new Uint8Array(await crypto.subtle.digest('SHA-256', e
 const entries = {};
 const links = [];
 
-for (const giver of names) {
+const payloads = names.map(giver => {
   const recipient = assignment.get(giver);
+  return enc.encode(JSON.stringify({
+    giver,
+    recipient,
+    wishlist: people.find(p => p.name === recipient).wishlist ?? [],
+  }));
+});
+
+// Pad every payload to the same size with trailing spaces (JSON.parse ignores
+// them). Otherwise ciphertext length would hint at whose wish list is inside.
+const padTo = Math.ceil(Math.max(...payloads.map(p => p.length)) / 256) * 256;
+
+for (const [i, giver] of names.entries()) {
   const token = b64url(crypto.getRandomValues(new Uint8Array(16)));
   const id = b64url((await sha256(`id|${token}`)).slice(0, 16));
   const key = await crypto.subtle.importKey('raw', await sha256(`key|${token}`), 'AES-GCM', false, ['encrypt']);
   const iv = crypto.getRandomValues(new Uint8Array(12));
 
-  const payload = {
-    giver,
-    recipient,
-    wishlist: people.find(p => p.name === recipient).wishlist ?? [],
-  };
-  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(payload)));
+  const padded = new Uint8Array(padTo).fill(0x20);
+  padded.set(payloads[i]);
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, padded);
 
   entries[id] = { iv: b64url(iv), ct: b64url(new Uint8Array(ct)) };
   links.push([giver, `${baseUrl}#${token}`]);
