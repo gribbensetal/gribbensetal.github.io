@@ -8,6 +8,7 @@ Each person gets a private link. It opens a bauble they click about 30 times to 
    - `wishlist`: a list of strings, or `{ "text": ..., "url": ..., "note": ... }` objects.
    - `never`: people this person must not be paired with. This works both ways, so you only need to list it on one of the two people.
    - `only`: limits who this person can buy for (one-way).
+   - `rules.households`: a list of groups, e.g. `[["Kieran", "Helena"], ...]`. Nobody draws someone from their own group.
    - `rules.noMutualPairs`: stops A→B and B→A both happening.
 2. `node santa/generate.mjs`
 3. Commit and push `santa/data.js`, then send each person their line from `santa/links.txt`.

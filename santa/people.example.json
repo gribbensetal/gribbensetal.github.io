@@ -6,41 +6,85 @@
     "date": "Christmas Day"
   },
   "rules": {
-    "noMutualPairs": true
+    "noMutualPairs": true,
+    "households": [
+      [
+        "Mum",
+        "Dad",
+        "Ciarán"
+      ],
+      [
+        "Sinéad",
+        "Pat"
+      ]
+    ]
   },
   "people": [
     {
       "name": "Mum",
-      "never": ["Dad"],
+      "never": [
+        "Dad"
+      ],
       "wishlist": [
         "Fluffy socks",
-        { "text": "The new Marian Keyes book", "url": "https://example.com/book" },
-        { "text": "Garden centre voucher", "note": "any amount!" }
+        {
+          "text": "The new Marian Keyes book",
+          "url": "https://example.com/book"
+        },
+        {
+          "text": "Garden centre voucher",
+          "note": "any amount!"
+        }
       ]
     },
     {
       "name": "Dad",
-      "never": ["Mum"],
-      "wishlist": ["Golf balls", "A decent bottle of whiskey"]
+      "never": [
+        "Mum"
+      ],
+      "wishlist": [
+        "Golf balls",
+        "A decent bottle of whiskey"
+      ]
     },
     {
       "name": "Sinéad",
-      "never": ["Pat"],
-      "wishlist": ["Candles", "Running headphones"]
+      "never": [
+        "Pat"
+      ],
+      "wishlist": [
+        "Candles",
+        "Running headphones"
+      ]
     },
     {
       "name": "Pat",
-      "never": ["Sinéad"],
-      "wishlist": ["Board game", "Hot sauce selection"]
+      "never": [
+        "Sinéad"
+      ],
+      "wishlist": [
+        "Board game",
+        "Hot sauce selection"
+      ]
     },
     {
       "name": "Ciarán",
-      "wishlist": ["Lego", "Hoodie (size M)"]
+      "wishlist": [
+        "Lego",
+        "Hoodie (size M)"
+      ]
     },
     {
       "name": "Gran",
-      "only": ["Mum", "Sinéad", "Ciarán"],
-      "wishlist": ["Bath salts", "Photo frame"]
+      "only": [
+        "Mum",
+        "Sinéad",
+        "Ciarán"
+      ],
+      "wishlist": [
+        "Bath salts",
+        "Photo frame"
+      ]
     }
   ]
 }

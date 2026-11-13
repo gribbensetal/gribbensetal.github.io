@@ -50,6 +50,14 @@ for (const p of people) {
   }
 }
 
+// Households: nobody draws someone from their own household.
+for (const household of rules.households ?? []) {
+  for (const a of household) {
+    if (!names.includes(a)) fail(`household references unknown person "${a}"`);
+    for (const b of household) if (a !== b) never.get(a).add(b);
+  }
+}
+
 // "only" is one-way: it limits who this person may buy for.
 const options = new Map(people.map(p => [
   p.name,
