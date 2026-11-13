@@ -1,0 +1,4 @@
+# Pages carry a noindex tag, so they stay crawlable (search engines must read
+# the tag to obey it). Only the data file is blocked outright.
+User-agent: *
+Disallow: /santa/data.js
