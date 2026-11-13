@@ -1,0 +1,46 @@
+{
+  "baseUrl": "https://gribbensetal.github.io/santa/",
+  "event": {
+    "title": "Gribben Secret Santa 2026",
+    "budget": "£30",
+    "date": "Christmas Day"
+  },
+  "rules": {
+    "noMutualPairs": true
+  },
+  "people": [
+    {
+      "name": "Mum",
+      "never": ["Dad"],
+      "wishlist": [
+        "Fluffy socks",
+        { "text": "The new Marian Keyes book", "url": "https://example.com/book" },
+        { "text": "Garden centre voucher", "note": "any amount!" }
+      ]
+    },
+    {
+      "name": "Dad",
+      "never": ["Mum"],
+      "wishlist": ["Golf balls", "A decent bottle of whiskey"]
+    },
+    {
+      "name": "Sinéad",
+      "never": ["Pat"],
+      "wishlist": ["Candles", "Running headphones"]
+    },
+    {
+      "name": "Pat",
+      "never": ["Sinéad"],
+      "wishlist": ["Board game", "Hot sauce selection"]
+    },
+    {
+      "name": "Ciarán",
+      "wishlist": ["Lego", "Hoodie (size M)"]
+    },
+    {
+      "name": "Gran",
+      "only": ["Mum", "Sinéad", "Ciarán"],
+      "wishlist": ["Bath salts", "Photo frame"]
+    }
+  ]
+}

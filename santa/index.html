@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Secret Santa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0d1b2a;
+    --night-2: #1b2f45;
+    --red: #c8102e;
+    --red-dark: #7a0a1c;
+    --green: #1f6f43;
+    --gold: #f2c14e;
+    --snow: #f7f9fc;
+    --ink: #2b1a12;
+    --card: #fffaf0;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: 'Nunito', system-ui, sans-serif;
+    color: var(--snow);
+    background: radial-gradient(ellipse at 50% 0%, var(--night-2), var(--night) 70%) fixed;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #snow { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  main {
+    position: relative; z-index: 1;
+    min-height: 100%;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 24px 16px 48px;
+    text-align: center;
+  }
+  h1, h2, .festive { font-family: 'Mountains of Christmas', cursive; }
+  h1 { font-size: clamp(2rem, 7vw, 3.2rem); margin: 8px 0 4px; color: var(--gold); text-shadow: 0 2px 0 var(--red-dark); }
+  .sub { margin: 0 0 8px; font-size: 1.1rem; opacity: .9; max-width: 32rem; }
+  [hidden] { display: none !important; }
+
+  /* ---------- bauble ---------- */
+  #stage { position: relative; width: min(78vw, 320px); margin-top: 36px; }
+  #bauble {
+    display: block; width: 100%; padding: 0; border: 0; background: none;
+    cursor: pointer; touch-action: manipulation;
+    transform-origin: 50% 0%;
+    animation: sway 4s ease-in-out infinite;
+    outline: none;
+  }
+  #bauble:focus-visible svg { outline: 3px dashed var(--gold); outline-offset: 6px; border-radius: 50%; }
+  #bauble svg { width: 100%; height: auto; overflow: visible; display: block; filter: drop-shadow(0 0 calc(var(--glow, 0) * 40px) rgba(255, 214, 120, calc(var(--glow, 0) * .9))); }
+  #bauble.hit { animation: hit .28s cubic-bezier(.3, 1.6, .5, 1); }
+  @keyframes sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+  @keyframes hit {
+    0% { transform: rotate(0) scale(1); }
+    25% { transform: rotate(calc(var(--amp) * -1deg)) scale(.94); }
+    55% { transform: rotate(calc(var(--amp) * 1deg)) scale(1.03); }
+    100% { transform: rotate(0) scale(1); }
+  }
+  .crack { fill: none; stroke: #fff6d8; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .25s ease-out; filter: drop-shadow(0 0 3px #ffd36b); }
+
+  #hint {
+    min-height: 2.6em; margin: 14px 0 6px;
+    font-family: 'Mountains of Christmas', cursive; font-size: clamp(1.5rem, 6vw, 2.1rem);
+    color: var(--snow);
+  }
+  #hint.pop { animation: pop .3s ease-out; }
+  @keyframes pop { 0% { transform: scale(1.35); color: var(--gold); } 100% { transform: scale(1); } }
+
+  .cane {
+    width: min(78vw, 320px); height: 14px; border-radius: 7px;
+    background: rgba(255,255,255,.12); overflow: hidden;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.2);
+  }
+  .cane > div {
+    height: 100%; width: 0%;
+    background: repeating-linear-gradient(-45deg, var(--red) 0 10px, #fff 10px 20px);
+    transition: width .2s ease-out;
+  }
+
+  /* ---------- shards & confetti ---------- */
+  .fx { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 5; will-change: transform, opacity; }
+  .shard { background: radial-gradient(circle at 30% 30%, #ff5a6e, var(--red) 45%, var(--red-dark)); }
+  .confetti { width: 8px; height: 14px; border-radius: 2px; }
+
+  /* ---------- reveal card ---------- */
+  #reveal {
+    width: min(100%, 30rem); margin-top: 12px;
+    background: var(--card); color: var(--ink);
+    border-radius: 18px; padding: 24px 20px 20px;
+    box-shadow: 0 18px 50px rgba(0,0,0,.45), 0 0 0 6px var(--green), 0 0 0 9px var(--gold);
+    animation: unwrap .6s cubic-bezier(.2, 1.4, .4, 1) both;
+  }
+  @keyframes unwrap { from { transform: scale(.3) rotate(-8deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  #reveal .lead { margin: 0; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: .08em; font-size: .85rem; }
+  #recipient { font-size: clamp(2.6rem, 11vw, 4rem); margin: 4px 0 6px; color: var(--red); line-height: 1.05; word-break: break-word; }
+  .meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0 0 16px; padding: 0; list-style: none; }
+  .meta li { background: #f3e6c8; border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: .9rem; }
+  #reveal h2 { margin: 8px 0 8px; font-size: 1.8rem; color: var(--green); }
+  #wishlist { list-style: none; padding: 0; margin: 0; text-align: left; }
+  #wishlist li {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 4px; border-top: 1px dashed #d9c9a3;
+    font-size: 1.05rem; line-height: 1.35;
+  }
+  #wishlist li:first-child { border-top: 0; }
+  #wishlist li::before { content: '🎁'; flex: none; }
+  #wishlist a { color: var(--red); font-weight: 700; word-break: break-word; }
+  #wishlist .note { display: block; font-size: .9rem; opacity: .7; }
+  #wishlist .empty { opacity: .7; font-style: italic; }
+  #wishlist .empty::before { content: '🤷'; }
+  .secret { margin: 18px 0 0; font-size: .9rem; opacity: .75; }
+  button.again {
+    margin-top: 14px; border: 0; border-radius: 999px; padding: 10px 18px;
+    font: 700 1rem 'Nunito', sans-serif; color: #fff; background: var(--green); cursor: pointer;
+  }
+  button.again:hover { background: #185a36; }
+
+  .message { margin-top: 10vh; max-width: 28rem; }
+  .message .big { font-size: 4rem; margin: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    #bauble { animation: none; }
+    #reveal { animation: none; }
+  }
+</style>
+</head>
+<body>
+<canvas id="snow"></canvas>
+<main>
+  <h1 id="title">Secret Santa</h1>
+
+  <section id="game" hidden>
+    <p class="sub" id="greeting"></p>
+    <div id="stage">
+      <button id="bauble" aria-label="Smash the bauble">
+        <svg viewBox="0 0 200 250" aria-hidden="true">
+          <defs>
+            <radialGradient id="ball" cx="35%" cy="35%" r="75%">
+              <stop offset="0%" stop-color="#ff6b7d"/>
+              <stop offset="40%" stop-color="#d4142f"/>
+              <stop offset="100%" stop-color="#5c0614"/>
+            </radialGradient>
+            <linearGradient id="goldGrad" x1="0" x2="1">
+              <stop offset="0%" stop-color="#a87b1a"/>
+              <stop offset="45%" stop-color="#ffe08a"/>
+              <stop offset="100%" stop-color="#9a6e12"/>
+            </linearGradient>
+            <clipPath id="ballClip"><circle cx="100" cy="150" r="88"/></clipPath>
+          </defs>
+          <line x1="100" y1="-24" x2="100" y2="34" stroke="#f2c14e" stroke-width="2"/>
+          <circle cx="100" cy="34" r="7" fill="none" stroke="url(#goldGrad)" stroke-width="3"/>
+          <rect x="80" y="40" width="40" height="22" rx="4" fill="url(#goldGrad)"/>
+          <path d="M84 44v14M92 44v14M100 44v14M108 44v14M116 44v14" stroke="#8a6210" stroke-width="1.5" opacity=".6"/>
+          <circle cx="100" cy="150" r="88" fill="url(#ball)"/>
+          <g clip-path="url(#ballClip)">
+            <rect x="0" y="134" width="200" height="30" fill="#fffaf0" opacity=".92"/>
+            <path d="M0 134 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10" fill="#fffaf0" opacity=".92"/>
+            <path d="M0 164 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10" fill="#fffaf0" opacity=".92"/>
+            <g fill="#1f6f43">
+              <path d="M40 149 l4 -9 l4 9 l-4 9z"/><path d="M76 149 l4 -9 l4 9 l-4 9z"/>
+              <path d="M112 149 l4 -9 l4 9 l-4 9z"/><path d="M148 149 l4 -9 l4 9 l-4 9z"/>
+            </g>
+            <g fill="#f2c14e">
+              <circle cx="60" cy="100" r="4"/><circle cx="100" cy="88" r="4"/><circle cx="140" cy="100" r="4"/>
+              <circle cx="60" cy="200" r="4"/><circle cx="100" cy="212" r="4"/><circle cx="140" cy="200" r="4"/>
+            </g>
+          </g>
+          <ellipse cx="66" cy="108" rx="22" ry="34" fill="#fff" opacity=".28" transform="rotate(28 66 108)"/>
+          <ellipse cx="58" cy="96" rx="6" ry="10" fill="#fff" opacity=".55" transform="rotate(28 58 96)"/>
+          <g id="cracks">
+            <path class="crack" pathLength="1" d="M100 150 l-14 -22 l6 -14 l-12 -20 l4 -16"/>
+            <path class="crack" pathLength="1" d="M100 150 l22 -10 l10 8 l24 -6 l18 6"/>
+            <path class="crack" pathLength="1" d="M100 150 l-24 12 l-8 18 l-22 6 l-14 14"/>
+            <path class="crack" pathLength="1" d="M100 150 l10 26 l-6 14 l12 24"/>
+            <path class="crack" pathLength="1" d="M86 128 l-26 2 l-12 -10 l-20 4"/>
+            <path class="crack" pathLength="1" d="M132 148 l8 -24 l18 -12 l4 -18"/>
+            <path class="crack" pathLength="1" d="M68 180 l4 22 l-10 14"/>
+            <path class="crack" pathLength="1" d="M110 176 l26 8 l14 18 l14 2"/>
+          </g>
+        </svg>
+      </button>
+    </div>
+    <div id="hint" aria-live="polite">Tap the bauble!</div>
+    <div class="cane" aria-hidden="true"><div id="progress"></div></div>
+  </section>
+
+  <section id="reveal" hidden aria-live="polite">
+    <p class="lead">You are Secret Santa for</p>
+    <h2 id="recipient" class="festive"></h2>
+    <ul class="meta" id="meta"></ul>
+    <h2>Their wish list</h2>
+    <ul id="wishlist"></ul>
+    <p class="secret">🤫 Shh! Keep it secret.</p>
+    <button class="again" id="again">Smash it again</button>
+  </section>
+
+  <section id="message" class="message" hidden>
+    <p class="big" id="message-icon">🎄</p>
+    <h2 class="festive" id="message-title" style="font-size:2rem;color:var(--gold)"></h2>
+    <p class="sub" id="message-body"></p>
+  </section>
+</main>
+
+<script src="data.js"></script>
+<script>
+(() => {
+  const CLICKS_NEEDED = 30;
+  const $ = id => document.getElementById(id);
+  const data = window.SANTA;
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (data?.event?.title) {
+    $('title').textContent = data.event.title;
+    document.title = data.event.title;
+  }
+
+  function showMessage(icon, title, body) {
+    $('message-icon').textContent = icon;
+    $('message-title').textContent = title;
+    $('message-body').textContent = body;
+    $('message').hidden = false;
+  }
+
+  // ---------- decryption ----------
+
+  const b64urlToBytes = s => {
+    const bin = atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4));
+    return Uint8Array.from(bin, c => c.charCodeAt(0));
+  };
+  const bytesToB64url = b => btoa(String.fromCharCode(...b)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const sha256 = async s => new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)));
+
+  async function unlock(token) {
+    const id = bytesToB64url((await sha256(`id|${token}`)).slice(0, 16));
+    const entry = data.entries[id];
+    if (!entry) return null;
+    const key = await crypto.subtle.importKey('raw', await sha256(`key|${token}`), 'AES-GCM', false, ['decrypt']);
+    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64urlToBytes(entry.iv) }, key, b64urlToBytes(entry.ct));
+    return { id, ...JSON.parse(new TextDecoder().decode(plain)) };
+  }
+
+  // ---------- reveal ----------
+
+  function renderReveal(match) {
+    $('recipient').textContent = match.recipient;
+
+    const meta = $('meta');
+    meta.replaceChildren();
+    const ev = data.event || {};
+    if (ev.budget) meta.append(Object.assign(document.createElement('li'), { textContent: `💷 Budget: ${ev.budget}` }));
+    if (ev.date) meta.append(Object.assign(document.createElement('li'), { textContent: `📅 ${ev.date}` }));
+
+    const list = $('wishlist');
+    list.replaceChildren();
+    const items = match.wishlist || [];
+    if (!items.length) {
+      list.append(Object.assign(document.createElement('li'), {
+        className: 'empty',
+        textContent: `${match.recipient} hasn't asked for anything. Surprise them!`,
+      }));
+    }
+    for (const raw of items) {
+      const item = typeof raw === 'string' ? { text: raw } : raw;
+      if (!item.url && /^https?:\/\/\S+$/.test(item.text || '')) item.url = item.text;
+      const li = document.createElement('li');
+      const body = document.createElement('div');
+      if (item.url && /^https?:\/\//.test(item.url)) {
+        const a = Object.assign(document.createElement('a'), {
+          href: item.url, target: '_blank', rel: 'noopener noreferrer',
+          textContent: item.text || item.url,
+        });
+        body.append(a);
+      } else {
+        body.append(document.createTextNode(item.text || ''));
+      }
+      if (item.note) body.append(Object.assign(document.createElement('span'), { className: 'note', textContent: item.note }));
+      li.append(body);
+      list.append(li);
+    }
+
+    $('game').hidden = true;
+    $('reveal').hidden = false;
+  }
+
+  // ---------- effects ----------
+
+  let audio;
+  function tone(freq, dur, type = 'sine', vol = 0.08) {
+    try {
+      audio ??= new (window.AudioContext || window.webkitAudioContext)();
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.type = type; o.frequency.value = freq;
+      g.gain.setValueAtTime(vol, audio.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + dur);
+      o.connect(g).connect(audio.destination);
+      o.start(); o.stop(audio.currentTime + dur);
+    } catch {}
+  }
+  function smashSound() {
+    try {
+      audio ??= new (window.AudioContext || window.webkitAudioContext)();
+      const len = audio.sampleRate * 0.5;
+      const buf = audio.createBuffer(1, len, audio.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+      const src = audio.createBufferSource(), f = audio.createBiquadFilter(), g = audio.createGain();
+      src.buffer = buf; f.type = 'highpass'; f.frequency.value = 2500; g.gain.value = 0.25;
+      src.connect(f).connect(g).connect(audio.destination);
+      src.start();
+      [1568, 2093, 2637, 3136].forEach((fr, i) => setTimeout(() => tone(fr, 0.6, 'triangle', 0.05), 120 + i * 90));
+    } catch {}
+  }
+
+  function burst(cx, cy) {
+    const colours = ['#c8102e', '#f2c14e', '#1f6f43', '#ffffff', '#5fb3ff'];
+    const pieces = [];
+    for (let i = 0; i < 22; i++) {
+      const el = document.createElement('div');
+      el.className = 'fx shard';
+      const s = 18 + Math.random() * 34;
+      el.style.width = el.style.height = `${s}px`;
+      const pts = Array.from({ length: 3 + Math.floor(Math.random() * 2) }, () => `${Math.random() * 100}% ${Math.random() * 100}%`);
+      el.style.clipPath = `polygon(${pts.join(',')})`;
+      pieces.push([el, 260 + Math.random() * 380]);
+    }
+    for (let i = 0; i < 110; i++) {
+      const el = document.createElement('div');
+      el.className = 'fx confetti';
+      el.style.background = colours[i % colours.length];
+      pieces.push([el, 200 + Math.random() * 520]);
+    }
+    for (const [el, power] of pieces) {
+      document.body.append(el);
+      const angle = Math.random() * Math.PI * 2;
+      const dx = Math.cos(angle) * power, dy = Math.sin(angle) * power - 200;
+      const spin = (Math.random() - 0.5) * 1440;
+      const dur = 1400 + Math.random() * 1200;
+      el.animate([
+        { transform: `translate(${cx}px, ${cy}px) rotate(0)`, opacity: 1 },
+        { transform: `translate(${cx + dx * 0.7}px, ${cy + dy * 0.7}px) rotate(${spin / 2}deg)`, opacity: 1, offset: 0.4 },
+        { transform: `translate(${cx + dx}px, ${cy + dy + 700}px) rotate(${spin}deg)`, opacity: 0 },
+      ], { duration: dur, easing: 'cubic-bezier(.15,.7,.4,1)', fill: 'forwards' }).onfinish = () => el.remove();
+    }
+  }
+
+  // ---------- the game ----------
+
+  const messages = [
+    [0.00, ['Keep clicking!!', 'Again!', 'Harder!', 'More!']],
+    [0.25, ['Something’s cracking…', 'Keep clicking!!', 'Don’t stop now!', 'The elves believe in you']],
+    [0.50, ['Halfway there!', 'Keep clicking!!', 'Smash it!', 'It’s glowing…']],
+    [0.75, ['Nearly there!!', 'SO close!', 'Keep clicking!!!', 'Don’t you dare stop']],
+    [0.90, ['ONE MORE!', '…ok, a few more', 'ALMOST!!!', 'Any second now…']],
+  ];
+
+  function startGame(match) {
+    const storeKey = `santa-revealed-${match.id}`;
+    const cracks = [...document.querySelectorAll('.crack')];
+    const bauble = $('bauble');
+    let clicks = 0, done = false;
+
+    const reset = () => {
+      clicks = 0; done = false;
+      cracks.forEach(c => c.style.strokeDashoffset = 1);
+      bauble.style.setProperty('--glow', 0);
+      bauble.style.visibility = '';
+      $('progress').style.width = '0%';
+      $('hint').textContent = 'Tap the bauble!';
+      $('reveal').hidden = true;
+      $('game').hidden = false;
+    };
+
+    $('greeting').textContent = `Ho ho ho, ${match.giver}! Your Secret Santa match is sealed inside this bauble. Smash it open to find out who you’re buying for.`;
+
+    bauble.addEventListener('click', () => {
+      if (done) return;
+      clicks++;
+      const p = clicks / CLICKS_NEEDED;
+
+      $('progress').style.width = `${Math.min(100, p * 100)}%`;
+      const crackAmount = Math.max(0, (p - 0.1) / 0.85) * cracks.length;
+      cracks.forEach((c, i) => c.style.strokeDashoffset = 1 - Math.min(1, Math.max(0, crackAmount - i)));
+      bauble.style.setProperty('--glow', p.toFixed(2));
+
+      if (!reduceMotion) {
+        bauble.style.setProperty('--amp', (4 + p * 16).toFixed(1));
+        bauble.classList.remove('hit');
+        void bauble.offsetWidth;
+        bauble.classList.add('hit');
+      }
+      if (navigator.vibrate) navigator.vibrate(10 + p * 30);
+      tone(440 + p * 900, 0.12, 'triangle');
+
+      if (clicks >= CLICKS_NEEDED) {
+        done = true;
+        const r = bauble.getBoundingClientRect();
+        bauble.style.visibility = 'hidden';
+        smashSound();
+        burst(r.left + r.width / 2, r.top + r.height * 0.6);
+        try { localStorage.setItem(storeKey, '1'); } catch {}
+        setTimeout(() => renderReveal(match), 450);
+        return;
+      }
+
+      const band = messages.filter(([t]) => p >= t).pop()[1];
+      const hint = $('hint');
+      hint.textContent = band[Math.floor(Math.random() * band.length)];
+      hint.classList.remove('pop'); void hint.offsetWidth; hint.classList.add('pop');
+    });
+
+    bauble.addEventListener('animationend', e => { if (e.animationName === 'hit') bauble.classList.remove('hit'); });
+
+    $('again').addEventListener('click', () => {
+      try { localStorage.removeItem(storeKey); } catch {}
+      reset();
+    });
+
+    let revealed = false;
+    try { revealed = localStorage.getItem(storeKey) === '1'; } catch {}
+    if (revealed) renderReveal(match); else reset();
+  }
+
+  async function main() {
+    const token = decodeURIComponent(location.hash.slice(1)).trim();
+    if (!data || !data.entries) {
+      showMessage('🎅', 'The elves are still busy', 'The draw hasn’t been made yet. Check back soon!');
+      return;
+    }
+    if (!token) {
+      showMessage('🎄', 'Looking for your match?', 'Use the personal link you were sent — it’s the only way to open your bauble.');
+      return;
+    }
+    if (!window.crypto?.subtle) {
+      showMessage('🔒', 'Secure page needed', 'Please open your link over https.');
+      return;
+    }
+    let match = null;
+    try { match = await unlock(token); } catch {}
+    if (!match) {
+      showMessage('🧐', 'That link doesn’t look right', 'Make sure you copied the whole link, including everything after the #. If it still doesn’t work, ask whoever sent it.');
+      return;
+    }
+    startGame(match);
+  }
+
+  window.addEventListener('hashchange', () => location.reload());
+  main();
+
+  // ---------- snow ----------
+
+  const canvas = $('snow'), ctx = canvas.getContext('2d');
+  let flakes = [];
+  function resize() {
+    canvas.width = innerWidth * devicePixelRatio;
+    canvas.height = innerHeight * devicePixelRatio;
+    const count = reduceMotion ? 40 : Math.round(innerWidth / 8);
+    flakes = Array.from({ length: count }, () => ({
+      x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+      r: (1 + Math.random() * 2.5) * devicePixelRatio,
+      s: (0.3 + Math.random() * 0.9) * devicePixelRatio,
+      w: Math.random() * Math.PI * 2,
+    }));
+  }
+  function frame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'rgba(255,255,255,.85)';
+    for (const f of flakes) {
+      if (!reduceMotion) {
+        f.y += f.s; f.w += 0.01; f.x += Math.sin(f.w) * 0.4;
+        if (f.y > canvas.height) { f.y = -5; f.x = Math.random() * canvas.width; }
+      }
+      ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2); ctx.fill();
+    }
+    if (!reduceMotion) requestAnimationFrame(frame);
+  }
+  addEventListener('resize', () => { resize(); if (reduceMotion) frame(); });
+  resize(); frame();
+})();
+</script>
+</body>
+</html>
