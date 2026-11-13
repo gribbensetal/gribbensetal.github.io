@@ -240,18 +240,21 @@
   </section>
 </main>
 
-<script src="data.js"></script>
 <script>
 (() => {
   const CLICKS_NEEDED = 30;
   const $ = id => document.getElementById(id);
-  const data = window.SANTA;
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let data;
 
-  if (data?.event?.title) {
-    $('title').textContent = data.event.title;
-    document.title = data.event.title;
-  }
+  // Load data.js with a cache-buster so a redraw shows up immediately,
+  // instead of after GitHub Pages' 10 minute browser cache expires.
+  const loadData = () => new Promise(resolve => {
+    const s = document.createElement('script');
+    s.src = `data.js?t=${Date.now()}`;
+    s.onload = s.onerror = () => resolve(window.SANTA);
+    document.head.append(s);
+  });
 
   function showMessage(icon, title, body) {
     $('message-icon').textContent = icon;
@@ -460,6 +463,11 @@
   }
 
   async function main() {
+    data = await loadData();
+    if (data?.event?.title) {
+      $('title').textContent = data.event.title;
+      document.title = data.event.title;
+    }
     const token = decodeURIComponent(location.hash.slice(1)).trim();
     if (!data || !data.entries) {
       showMessage('🎅', 'The elves are still busy', 'The draw hasn’t been made yet. Check back soon!');
