@@ -1,0 +1,54 @@
+{
+  "baseUrl": "https://shiteupastickandlickitcomingdown.com/4dea3020b64d/",
+  "event": {
+    "title": "Mallon Secret Santa 2026",
+    "budget": "£50",
+    "date": "Christmas Day"
+  },
+  "rules": {
+    "noMutualPairs": true,
+    "households": [
+      [
+        "Person A",
+        "Person B"
+      ],
+      [
+        "Person C",
+        "Person D"
+      ]
+    ]
+  },
+  "people": [
+    {
+      "name": "Person A",
+      "wishlist": [
+        "Fluffy socks",
+        {
+          "text": "A book",
+          "url": "https://example.com/book"
+        }
+      ]
+    },
+    {
+      "name": "Person B",
+      "wishlist": [
+        "Candles"
+      ]
+    },
+    {
+      "name": "Person C",
+      "wishlist": [
+        {
+          "text": "Garden centre voucher",
+          "note": "any amount!"
+        }
+      ]
+    },
+    {
+      "name": "Person D",
+      "wishlist": [
+        "Hot sauce selection"
+      ]
+    }
+  ]
+}

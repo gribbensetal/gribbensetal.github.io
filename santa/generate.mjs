@@ -10,6 +10,7 @@
 // runs this script — can see who got whom without opening someone else's link.
 //
 // Usage: node santa/generate.mjs [path/to/people.json]
+// data.js and links.txt are written next to the people.json given.
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -17,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const configPath = process.argv[2] ?? join(here, 'people.json');
+const outDir = dirname(configPath);
 
 if (!existsSync(configPath)) {
   console.error(`No config at ${configPath}.\nCopy people.example.json to people.json and fill it in.`);
@@ -159,13 +161,13 @@ for (const [i, giver] of names.entries()) {
 const sorted = Object.fromEntries(Object.entries(entries).sort(([a], [b]) => a.localeCompare(b)));
 const data = { event: config.event ?? {}, entries: sorted };
 
-writeFileSync(join(here, 'data.js'), `window.SANTA = ${JSON.stringify(data, null, 2)};\n`);
+writeFileSync(join(outDir, 'data.js'), `window.SANTA = ${JSON.stringify(data, null, 2)};\n`);
 
 const width = Math.max(...names.map(n => n.length));
 const linkText = links.map(([n, url]) => `${n.padEnd(width)}  ${url}`).join('\n') + '\n';
-writeFileSync(join(here, 'links.txt'), linkText);
+writeFileSync(join(outDir, 'links.txt'), linkText);
 
 console.log(`Drew ${names.length} people${noMutual ? ' (no mutual pairs)' : ''}.\n`);
 console.log(linkText);
-console.log('Wrote santa/data.js (commit this) and santa/links.txt (keep private).');
+console.log(`Wrote ${join(outDir, 'data.js')} (commit this) and ${join(outDir, 'links.txt')} (keep private).`);
 console.log('Re-running makes a brand new draw and new links; old links stop working.');
